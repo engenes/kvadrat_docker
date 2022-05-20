@@ -1,0 +1,110 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./x-docker/php/Dockerfile
+    image: php:8.0-fpm
+    container_name: kvadrat_app
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8080:8080"
+      - "9999:9999"
+    environment:
+      SERVICE_TAGS: kvadrat
+    working_dir: /var/www
+    volumes:
+      - ./sites:/var/www
+      - ./x-docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./x-docker/zsh/fzf/completion.zsh:/home/www/fzf/completion.zsh
+      - ./x-docker/zsh/fzf/key-bindings.zsh:/home/www/fzf/key-bindings.zsh
+      - ./x-docker/zsh/zsh-autosuggestions.zsh:/home/www/zsh-autosuggestions.zsh
+      - ./x-docker/zsh/zsh-history-substring-search.zsh:/home/www/zsh-history-substring-search.zsh
+      - ./x-docker/zsh/.config/starship.toml:/home/www/.config/starship.toml
+      - ./x-docker/zsh/.aliases.sh:/home/www/.aliases.sh
+      - ./x-docker/zsh/.zshrc:/home/www/.zshrc
+      - ~/.ssh:/home/www/.ssh
+    networks:
+      - app-network
+
+  webserver:
+    image: nginx:1.17
+    container_name: kvadrat_webserver
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_TAGS: kvadrat
+    ports:
+      - "80:80"
+#      - "443:443"
+    volumes:
+      - ./sites:/var/www
+      - ./x-docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./x-docker/nginx/php.conf:/etc/nginx/php.conf
+      - ./x-docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  db:
+    build:
+      context: .
+      dockerfile: ./x-docker/mysql/Dockerfile
+    image: mysql:8
+    container_name: kvadrat_db
+    command:
+      - --character-set-server=utf8mb4
+      - --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      SERVICE_TAGS: kvadrat
+    cap_add:
+      - ALL
+    networks:
+      - app-network
+
+  redis:
+    image: redis:6
+    container_name: kvadrat_redis
+    depends_on:
+      - app
+      - webserver
+    environment:
+      SERVICE_TAGS: kvadrat
+      ALLOW_EMPTY_PASSWORD: "yes"
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: kvadrat_phpmyadmin
+    environment:
+      SERVICE_TAGS: kvadrat
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - /sessions
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

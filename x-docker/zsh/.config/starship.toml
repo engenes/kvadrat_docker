@@ -1,0 +1,63 @@
+command_timeout = 5000
+
+[username]
+disabled = true
+
+[hostname]
+format = " [ synergine]($style) in "
+style = "bold cyan"
+trim_at = "-"
+ssh_only = false
+disabled = false
+
+[directory]
+style = "purple"
+truncation_length = 0
+truncate_to_repo = true
+truncation_symbol = "  → "
+read_only = "  "
+
+[git_status]
+style = "bold dimmed red"
+
+[cmd_duration]
+min_time = 1
+format = "took [$duration]($style)"
+show_notifications = true
+disabled = false
+
+[character]
+success_symbol = " [ ](bold green)"
+error_symbol = ""
+
+[status]
+symbol = " [ ](bold red)"
+format = "[$symbol$status_common_meaning$status_signal_name$status_maybe_int]($style)"
+disabled = false
+
+[battery]
+disabled = true
+
+[docker_context]
+symbol = " "
+
+[git_branch]
+symbol = " "
+
+[nodejs]
+symbol = " "
+
+[package]
+symbol = " "
+
+[php]
+symbol = " "
+
+[python]
+symbol = " "
+
+[ruby]
+symbol = " "
+
+[swift]
+symbol = "ﯣ "
