@@ -7,34 +7,34 @@ USER root
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-   build-essential \
-   libpng-dev \
-   libjpeg62-turbo-dev \
-   libfreetype6-dev \
-   locales \
-   zip \
-   jpegoptim optipng pngquant gifsicle \
-   vim \
-   unzip \
-   git \
-   curl \
-   libzip-dev \
-   libonig-dev \
-   nano \
-   ruby \
-   ruby-dev \
-   zsh \
-   automake \
-   mariadb-client \
-   software-properties-common \
-   gcc \
-   g++ \
-   make \
-   rsync \
-   fzf \
-   sudo \
-   whois \
-   ntp
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    libonig-dev \
+    nano \
+    ruby \
+    ruby-dev \
+    zsh \
+    automake \
+    mariadb-client \
+    software-properties-common \
+    gcc \
+    g++ \
+    make \
+    rsync \
+    fzf \
+    sudo \
+    whois \
+    ntp
 
 # Install extensions
 RUN docker-php-ext-install pdo_mysql mysqli mbstring zip exif pcntl
@@ -54,7 +54,7 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- --force
 
 # Add user
 RUN if [ ! $(getent group www) ]; then groupadd -g 1000 www; fi
-RUN if [ ! $(getent passwd www) ]; then useradd -u 1000 -ms /bin/sh -g www www; fi
+RUN if [ ! $(getent passwd www) ]; then useradd -u 1000 -ms /bin/bash -g www www; fi
 RUN echo "www:www" | chpasswd
 
 # ZSH
