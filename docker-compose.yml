@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: ./x-docker/mysql/Dockerfile
-    image: mysql:8
+    image: arm64v8/mysql:oracle
     container_name: kvadrat_db
     command:
       - --character-set-server=utf8mb4
@@ -88,7 +88,7 @@ services:
       - app-network
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    image: arm64v8/phpmyadmin:latest
     container_name: kvadrat_phpmyadmin
     environment:
       SERVICE_TAGS: kvadrat
