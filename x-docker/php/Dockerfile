@@ -1,4 +1,4 @@
-FROM php:8-fpm
+FROM php:8.1.0-fpm
 
 # Set working directory
 WORKDIR /var/www
@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     locales \
+    locales-all \
     zip \
     jpegoptim optipng pngquant gifsicle \
     vim \
@@ -36,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     whois \
     ntp
 
+RUN locale-gen ru_RU.utf8 && dpkg-reconfigure locales-all
 # Install extensions
 RUN docker-php-ext-install pdo_mysql mysqli mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
