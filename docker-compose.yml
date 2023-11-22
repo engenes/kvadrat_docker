@@ -1,0 +1,99 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./php/Dockerfile
+    container_name: kv_site
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_TAGS: kvadrat
+      UPLOAD_LIMIT: 64M
+    working_dir: /var/www
+    volumes:
+      - ../site:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - kvadrat-network
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: kv_nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - ../site:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - kvadrat-network
+
+  # MySQL контейнер
+  db:
+    platform: linux/x86_64 # Платформа указывается для корректной работы на macbook
+    image: mysql:5.7.22
+    container_name: kv_db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--default-authentication-plugin=mysql_native_password'
+    ]
+    environment:
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      SERVICE_TAGS: kvadrat
+    volumes:
+      - ./mysql:/etc/mysql # Передаем в контейнер конфигурационный файл
+    cap_add:
+      - ALL
+    networks:
+      - kvadrat-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: kv_phpmyadmin
+    environment:
+      SERVICE_TAGS: kvadrat
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8888:80"
+    volumes:
+      - /sessions
+    networks:
+      - kvadrat-network
+
+  redis:
+    image: redis:6
+    container_name: kvadrat_redis
+    depends_on:
+      - kv_site
+      - kv_nginx
+    environment:
+      SERVICE_TAGS: kvadrat
+      ALLOW_EMPTY_PASSWORD: "yes"
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    networks:
+      - kvadrat-network
+
+# Docker Networks
+networks:
+  kvadrat-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
