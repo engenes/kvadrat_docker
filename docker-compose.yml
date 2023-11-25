@@ -75,10 +75,10 @@ services:
 
   redis:
     image: redis:6
-    container_name: kvadrat_redis
+    container_name: kv_redis
     depends_on:
-      - kv_site
-      - kv_nginx
+      - app
+      - nginx
     environment:
       SERVICE_TAGS: kvadrat
       ALLOW_EMPTY_PASSWORD: "yes"
